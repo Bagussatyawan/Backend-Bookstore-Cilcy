@@ -37,6 +37,7 @@ module.exports = {
         onDelete: "CASCADE",
       },
       price: Sequelize.FLOAT,
+      quantity: Sequelize.FLOAT,
       total: Sequelize.INTEGER,
       name: Sequelize.STRING(255),
       description: Sequelize.TEXT,

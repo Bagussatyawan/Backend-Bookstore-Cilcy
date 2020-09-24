@@ -1,6 +1,8 @@
 require('dotenv').config();
 const { UserModel, ProductModel, CategoryModel } = require('../db/models');
 const jwt = require('jsonwebtoken');
+const { Op } = require('sequelize')
+
 
 exports.create = async (req, res, next) => {
     try {
@@ -19,10 +21,10 @@ exports.create = async (req, res, next) => {
 
         // SPLIT TYPE OF BEARER WITH TOKEN
         const token = authorization.split(" ")[1]
-        // const _token = token.split('"')[1]
-        // console.log("_TOKEN", _token)
+        const _token = token.split('"')[1]
+        console.log("_TOKEN", _token)
         //ENCRYPTION TOKEN PASSWORD
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+        const decodedToken = jwt.verify(_token, process.env.JWT_SECRET);
         const user_id = decodedToken.sub;
         //CHECK IS USER EXIST
         const user = await UserModel.findOne({
@@ -36,6 +38,10 @@ exports.create = async (req, res, next) => {
             error.statusCode = 401; // 401 is unAuthorized status
             throw error;
         };
+        console.log('REQQ', req)
+        console.log('REQFIILE', req.file)
+        //UPLOAD RESPONSE
+        const imageURL = req.file.path + (req.file.mimetype === 'image/png' ? '.png' : '.jpg');
 
         //CREATE PRODUCT
         const product = await ProductModel.create({
@@ -45,7 +51,7 @@ exports.create = async (req, res, next) => {
             author,
             weight,
             no_isbn,
-            image_url,
+            image_url: imageURL,
             category_id,
             user_id: user.id
         });
@@ -185,24 +191,23 @@ exports.deleteById = async (req, res, next) => {
 exports.getAllList = async (req, res, next) => {
     try {
         const params = (req.query);
+        //Sorting
         const order =
             params.sort_by && params.sort_type ? [[params.sort_by, params.sort_type]] : [["id", "DESC"]];
 
         //Pagination
-        const limit = Number(params.limit);
-        const offset = Number(params.limit) * ((Number(params.page || 1) || 1) - 1);
+        const limit = params.limit ? Number(params.limit) : 10;
+        const offset = Number(limit) * ((Number(params.page || 1) || 1) - 1);
+        //Searching
+        const where = {}
+        if (params.name) where.name = { [Op.like]: `%${params.name}%` }
+        if (params.author) where.author = { [Op.like]: `%${params.author}%` }
+
         const data = await ProductModel.findAndCountAll({
-            where: {
-                name: params.name && {
-                    [Op.like]: `%${params.name}%`,
-                },
-                author: params.author && {
-                    [Op.like]: `%${params.author}%`,
-                },
-            },
+            where,
             order,
             attributes: this.attributes,
-            limit: limit || 10,
+            limit,
             offset,
         });
 
@@ -215,8 +220,6 @@ exports.getAllList = async (req, res, next) => {
         });
 
     } catch (error) {
-        console.log(error)
-        // return next(error)
+        return next(error)
     }
 };
-

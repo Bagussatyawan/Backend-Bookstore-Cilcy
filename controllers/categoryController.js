@@ -1,6 +1,7 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const { CategoryModel, UserModel } = require('../db/models');
+const { Op } = require('sequelize')
 
 
 exports.create = async (req, res, next) => {
@@ -169,20 +170,16 @@ exports.getAllList = async (req, res, next) => {
             params.sort_by && params.sort_type ? [[params.sort_by, params.sort_type]] : [["id", "DESC"]];
 
         //Pagination
-        const limit = Number(params.limit);
-        const offset = Number(params.limit) * ((Number(params.page || 1) || 1) - 1);
+        const limit = params.limit ? Number(params.limit) : 10;
+        const offset = Number(limit) * ((Number(params.page || 1) || 1) - 1);
+        const where = {}
+        if (params.name) where.name = { [Op.like]: `%${params.name}%` }
+        if (params.author) where.author = { [Op.like]: `%${params.author}%` }
         const data = await CategoryModel.findAndCountAll({
-            where: {
-                name: params.name && {
-                    [Op.like]: `%${params.name}%`,
-                },
-                author: params.author && {
-                    [Op.like]: `%${params.author}%`,
-                },
-            },
+            where,
             order,
             attributes: this.attributes,
-            limit: limit || 10,
+            limit,
             offset,
         });
 

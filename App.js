@@ -4,7 +4,8 @@ const cors = require('cors');
 
 const app = express();
 
-const PORT = process.env.PORT || 9696
+
+const PORT = process.env.PORT || 6969
 
 const authRouter = require('./routers/authRouter');
 const categoryRouter = require('./routers/categoryRouter');
@@ -14,6 +15,7 @@ const transactionRouter = require('./routers/transactionRouter');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/thumbnails', express.static(__dirname + '/Upload_thumbnail/'));
 
 app.use(cors());
 

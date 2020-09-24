@@ -17,6 +17,7 @@ OrderModel.init(
         user_id: Sequelize.UUID,
         product_id: Sequelize.UUID,
         price: Sequelize.FLOAT,
+        quantity: Sequelize.INTEGER,
         total: Sequelize.INTEGER,
         name: Sequelize.STRING(255),
         description: Sequelize.TEXT,
