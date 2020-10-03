@@ -65,6 +65,7 @@ exports.login = async (req, res, next) => {
 
         const payload = {
             sub: existUser.id,
+            level: existUser.level
         };
         const token = jwt.sign(payload, process.env.JWT_SECRET, {
             algorithm: "HS256",
@@ -76,6 +77,8 @@ exports.login = async (req, res, next) => {
             data: {
                 access_token: token,
                 type: "Bearer",
+                email: existUser.email,
+                user_id: existUser.id
             },
         })
     } catch (error) {

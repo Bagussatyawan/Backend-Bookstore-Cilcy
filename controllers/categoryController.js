@@ -1,37 +1,12 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const { CategoryModel, UserModel } = require('../db/models');
+const { CategoryModel } = require('../db/models');
 const { Op } = require('sequelize')
 
 
 exports.create = async (req, res, next) => {
     try {
-        const { authorization } = req.headers;
         const { name } = req.body;
-
-        if (!authorization) {
-            const error = new Error("Authorization required");
-            error.statusCode = 401;
-            throw error;
-        };
-
-        // SPLIT TYPE OF BEARER WITH TOKEN
-        const token = authorization.split(" ")[1]
-        //ENCRYPTION TOKEN PASSWORD
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-        const user_id = decodedToken.sub;
-        //CHECK IS USER EXIST
-        const user = await UserModel.findOne({
-            where: {
-                id: user_id,
-                level: "admin"
-            }
-        });
-        if (!user) {
-            const error = new Error('User not found');
-            error.statusCode = 401; // 401 is unAuthorized status
-            throw error;
-        };
 
         const categories = await CategoryModel.create({
             name,
@@ -42,7 +17,6 @@ exports.create = async (req, res, next) => {
             data: categories
         });
     } catch (error) {
-        // console.log(error)
         return next(error)
     }
 };
@@ -67,34 +41,7 @@ exports.getById = async (req, res, next) => {
 
 exports.updateById = async (req, res, next) => {
     try {
-        const { authorization } = req.headers;
         const params = req.body;
-
-        if (!authorization) {
-            const error = new Error("Authorization required");
-            error.statusCode = 401;
-            throw error;
-        };
-
-        // SPLIT TYPE OF BEARER WITH TOKEN
-        const token = authorization.split(" ")[1]
-        //ENCRYPTION TOKEN PASSWORD
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-        const user_id = decodedToken.sub;
-        //CHECK IS USER EXIST
-        const user = await UserModel.findOne({
-            where: {
-                id: user_id,
-                level: "admin"
-            }
-        });
-
-        if (!user) {
-            const error = new Error('User not found');
-            error.statusCode = 401; // 401 is unAuthorized status
-            throw error;
-        };
-
         const data = await CategoryModel.findByPk(req.params.id);
         if (!data) {
             const error = new Error("ID not found");
@@ -116,34 +63,7 @@ exports.updateById = async (req, res, next) => {
 
 exports.deleteById = async (req, res, next) => {
     try {
-        const { authorization } = req.headers;
         const params = req.body;
-
-        if (!authorization) {
-            const error = new Error("Authorization required");
-            error.statusCode = 401;
-            throw error;
-        };
-
-        // SPLIT TYPE OF BEARER WITH TOKEN
-        const token = authorization.split(" ")[1]
-        //ENCRYPTION TOKEN PASSWORD
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-        const user_id = decodedToken.sub;
-        //CHECK IS USER EXIST
-        const user = await UserModel.findOne({
-            where: {
-                id: user_id,
-                level: "admin"
-            }
-        });
-
-        if (!user) {
-            const error = new Error('User not found');
-            error.statusCode = 401; // 401 is unAuthorized status
-            throw error;
-        };
-
         const data = await CategoryModel.findByPk(req.params.id);
         if (!data) {
             const error = new Error("ID nout found");

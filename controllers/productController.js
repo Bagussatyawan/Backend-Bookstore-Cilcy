@@ -1,47 +1,16 @@
 require('dotenv').config();
-const { UserModel, ProductModel, CategoryModel } = require('../db/models');
+const { ProductModel, CategoryModel } = require('../db/models');
 const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize')
 
 
 exports.create = async (req, res, next) => {
     try {
-        // TO GET TOKEN PASSWORD FROM USER
-        const { authorization } = req.headers;
-        const { name, description,
-            price,
-            author, weight,
+
+        const { name, description, price, author, weight,
             no_isbn, image_url, category_id } = req.body;
 
-        if (!authorization) {
-            const error = new Error("Authorization required");
-            error.statusCode = 401;
-            throw error;
-        };
-
-        // SPLIT TYPE OF BEARER WITH TOKEN
-        const token = authorization.split(" ")[1]
-        const _token = token.split('"')[1]
-        console.log("_TOKEN", _token)
-        //ENCRYPTION TOKEN PASSWORD
-        const decodedToken = jwt.verify(_token, process.env.JWT_SECRET);
-        const user_id = decodedToken.sub;
-        //CHECK IS USER EXIST
-        const user = await UserModel.findOne({
-            where: {
-                id: user_id,
-                level: "admin"
-            }
-        });
-        if (!user) {
-            const error = new Error('User not found');
-            error.statusCode = 401; // 401 is unAuthorized status
-            throw error;
-        };
-        console.log('REQQ', req)
-        console.log('REQFIILE', req.file)
-        //UPLOAD RESPONSE
-        const imageURL = req.file.path + (req.file.mimetype === 'image/png' ? '.png' : '.jpg');
+        const imageURL = req.file.filename;
 
         //CREATE PRODUCT
         const product = await ProductModel.create({
@@ -53,7 +22,6 @@ exports.create = async (req, res, next) => {
             no_isbn,
             image_url: imageURL,
             category_id,
-            user_id: user.id
         });
 
         return res.status(200).json({
@@ -93,33 +61,8 @@ exports.getById = async (req, res, next) => {
 
 exports.updateById = async (req, res, next) => {
     try {
-        // AUTHORIZATION USER
-        const { authorization } = req.headers;
-        const params = req.body;
-
-        if (!authorization) {
-            const error = new Error('Authorization required')
-            error.statusCode = 401;
-            throw error
-        };
-
-        const token = authorization.split(" ")[1]
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-        const user_id = decodedToken.sub;
-        const user = await UserModel.findOne({
-            where: {
-                id: user_id,
-                level: "admin"
-            }
-        });
-
-        if (!user) {
-            const error = new Error("User not found");
-            error.statusCode = 401;
-            throw error
-        };
-
         // UPDATE PRODUCT
+        const params = req.body;
         const data = await ProductModel.findByPk(req.params.id);
         if (!data) {
             const error = new Error("ID not found");
@@ -141,35 +84,7 @@ exports.updateById = async (req, res, next) => {
 
 exports.deleteById = async (req, res, next) => {
     try {
-        const { authorization } = req.headers;
         const params = req.body;
-
-        if (!authorization) {
-            const error = new Error("Authorization required");
-            error.statusCode = 401;
-            throw error;
-        };
-
-        const token = authorization.split(" ")[1]
-        const _token = token.split('"')[1]
-        console.log("_TOKEN", _token)
-        //ENCRYPTION TOKEN PASSWORD
-        const decodedToken = jwt.verify(_token, process.env.JWT_SECRET);
-        const user_id = decodedToken.sub;
-        //CHECK IS USER EXIST
-        const user = await UserModel.findOne({
-            where: {
-                id: user_id,
-                level: "admin"
-            }
-        });
-
-        if (!user) {
-            const error = new Error('User not found');
-            error.statusCode = 401; // 401 is unAuthorized status
-            throw error;
-        };
-
         const data = await ProductModel.findByPk(req.params.id);
         if (!data) {
             const error = new Error("ID nout found");
