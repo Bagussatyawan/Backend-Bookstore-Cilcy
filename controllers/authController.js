@@ -78,7 +78,8 @@ exports.login = async (req, res, next) => {
                 access_token: token,
                 type: "Bearer",
                 email: existUser.email,
-                user_id: existUser.id
+                user_id: existUser.id,
+                level: existUser.level
             },
         })
     } catch (error) {

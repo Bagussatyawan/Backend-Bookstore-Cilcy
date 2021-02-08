@@ -1,6 +1,5 @@
 require('dotenv').config();
 const { ProductModel, CategoryModel } = require('../db/models');
-const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize')
 
 
@@ -111,7 +110,7 @@ exports.getAllList = async (req, res, next) => {
             params.sort_by && params.sort_type ? [[params.sort_by, params.sort_type]] : [["id", "DESC"]];
 
         //Pagination
-        const limit = params.limit ? Number(params.limit) : 10;
+        const limit = params.limit ? Number(params.limit) : 15;
         const offset = Number(limit) * ((Number(params.page || 1) || 1) - 1);
         //Searching
         const where = {}

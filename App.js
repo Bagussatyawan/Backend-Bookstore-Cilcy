@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+// const midtransClient = require('midtrans-client');
 const cors = require('cors');
 
 const app = express();
@@ -25,6 +26,7 @@ app.use('/api/v1/categories', categoryRouter);
 app.use('/api/v1/product', productRouter);
 app.use('/api/v1/transaction', transactionRouter);
 app.use('/api/v1/order', orderRouter);
+
 
 //ERROR HANDLING 
 app.use((error, req, res, next) => {
